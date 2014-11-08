@@ -7,93 +7,58 @@
  * # UserService
  * Service
  */
-angular.module('Services').factory('UserService', function (Restangular, $q, $filter, ngNotify) {
+angular.module('Services').factory('Users', function (Restangular, DSCacheFactory, $q) {
+    
     'use strict';
-
-    var allUsers,
-        promAllUsers,
-        myUser,
-        updating;
-    return {
-        updateUsers:
-            //ACCESSES SERVER AND UPDATES THE LIST OF USERS
-            function (update) {
-                if (update || (!allUsers && !updating)) {
-                    promAllUsers = Restangular.all("users").getList();
-                    updating = true;
-                    promAllUsers.then(function (success) {
-                        updating = false;
-                        success = Restangular.stripRestangular(success);
-                        allUsers = success;
-                    }, function (fail) {
-                        
-                    });
-                    return promAllUsers;
-                } else if (updating) {
-                    return promAllUsers;
-                } else {
-                    var defer = $q.defer();
-                    defer.resolve("DONE");
-                    return defer.promise;
-                }
-            },
-        getAllUsers:
-            function () {
-                return this.updateUsers().then(function (success) {
-                    return allUsers;
+        // Create a new cache called "userCache"
+        var userCache = DSCacheFactory('userCache', {
+            maxAge: 3600000,
+            deleteOnExpire: 'aggressive',
+            storageMode: 'localStorage', // This cache will sync itself with `localStorage`.
+            onExpire: function (key, value) {
+                Restangular.oneUrl('users', key).get().then(function(data) {
+                    userCache.put(key, data);
                 });
-            },
-        getMyUser:
-            function () {
-                return Restangular.all("users").all("myUser").getList();
-            },
-        getUser:
-            function (user_id) {
-                return this.updateUsers().then(function (success) {
-                    return $filter('getById')(allUsers, user_id);
-                });
-            },
-        getMyRole:
-            function () {
-                return Restangular.all("users").all("myRole").getList().then(function (success) { return success[0]; });
-            },
-        addUser:
-            function (user) {
-                return Restangular.all("users").post(user).then(
-                    function (result) {
-                    ngNotify.set("Succesfully created user.", {
-                        position: 'bottom',
-                        type: 'success'
-                    });
-                },
-                function (error) {
-                    ngNotify.set("Could not create user!", {
-                        position: 'bottom',
-                        type: 'error'
-                    });
-                }
-                );
-            },
-        editUser:
-            function (id, user) {
-                return Restangular.all("users").all(id).post(user);
-            },
-        deleteUser:
-            function (userId) {
-                Restangular.all('users').all(userId).remove().then(
-                function (result) {
-                    ngNotify.set("Succesfully deleted user.", {
-                        position: 'bottom',
-                        type: 'success'
-                    });
-                },
-                function (error) {
-                    ngNotify.set("Could not delete user!", {
-                        position: 'bottom',
-                        type: 'error'
-                    });
-                }
-            );
             }
-    };
+        });
+
+        Restangular.addFullRequestInterceptor(function(element, operation, what, url, headers, params, httpConfig) {
+            if(operation === 'get') {
+                debugger;
+                //Check the cache to see if the resource is already cached
+                var data = userCache.get(url);
+                //If cache object does exist, return it
+                if(data !== undefined) {
+                    angular.extend(element, data);
+
+                    var defer = $q.defer();
+                    httpConfig.timeOut = defer.promise;
+                    defer.resolve();
+                }
+
+                return {
+                    element: element,
+                    headers: headers,
+                    params: params,
+                    httpConfig: httpConfig
+                };
+            }
+        });
+
+        Restangular.addResponseInterceptor(function(data, operation, what, url, response) {
+            //Cache the response from a get method
+            if(operation === 'get') {
+                debugger;
+                userCache.put(url, data);
+            }
+
+            //Unvalidate the cache when a 'put', 'post' and 'delete' is performed to update the cached version.
+            if (operation === 'put' || operation === 'post' || operation === 'delete') {
+                userCache.destroy();
+            }
+
+            return response;
+        });
+
+        return Restangular.service('users');
 });
