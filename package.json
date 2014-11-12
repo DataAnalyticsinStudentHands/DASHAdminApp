@@ -1,6 +1,6 @@
 {
-  "name": "TerryManagementApp",
-  "description": "Terry Management Application",
+  "name": "DASHAdminApp",
+  "description": "DASH Management Application",
   "version": "0.0.1",
   "author": "Peggy Lindner",
   "dependencies": {
