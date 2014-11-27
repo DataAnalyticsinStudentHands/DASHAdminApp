@@ -7,7 +7,7 @@
  * # DataService
  * Service for the terry
  */
-angular.module('Services').factory('DataService', function (Restangular, $q, DSCacheFactory, ngNotify) {
+angular.module('Services').factory('DataService', function (Restangular, $q, ngNotify) {
     'use strict';
 
     return {

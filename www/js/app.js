@@ -7,7 +7,6 @@ angular.module('dash-admin-app', [
     'Directives',
     'restangular',
     'ngNotify',
-    'angular-data.DSCacheFactory',
     'ui.bootstrap.datetimepicker',
     'databaseControllerModule',
     'databaseServicesModule'
@@ -27,7 +26,8 @@ angular.module('dash-admin-app', [
     });
 
     //Restangular.setBaseUrl("http://localhost:8080/CHW/");
-    Restangular.setBaseUrl("http://www.housuggest.org:8888/CHWApp/");
+    Restangular.setBaseUrl("http://www.housuggest.org:8080/terrytest/");
+    
     $rootScope.Restangular = function () {
         return Restangular;
     };
@@ -81,7 +81,12 @@ angular.module('dash-admin-app', [
                 url: "/tab",
                 abstract: true,
                 templateUrl: "templates/tabs.html",
-                authenticate: true
+                authenticate: true,
+                resolve: {
+                    items: function (DataService){
+                        return DataService.getAllItems('applications');
+                    }
+                }
             })
 
             // Each tab has its own nav history stack:
@@ -100,7 +105,7 @@ angular.module('dash-admin-app', [
                 url: '/dash/:itemId',
                 views: {
                     'secure-users': {
-                        templateUrl: 'templates/classes.html',
+                        templateUrl: 'templates/popover.html',
                         controller: 'DashCtrl'
                     }
                 },

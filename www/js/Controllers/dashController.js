@@ -7,48 +7,34 @@
  * # DashController
  * Controller for objects used in the dashboard
  */
-angular.module('Controllers').controller('DashCtrl', function ($scope, $filter, $ionicModal, $ionicPopup, $stateParams, DataService) {
+angular.module('Controllers').controller('DashCtrl', function ($scope, $filter, $ionicModal, $ionicPopup, $stateParams, items, DataService) {
     'use strict';
 
     $scope.myVariables = {
         current_mode: 'Add'
     };
     
-    $scope.locations = {};
-    $scope.location = {};
-    $scope.classes = {};
-    $scope.aclass = {};
-
-    // GET 
-    DataService.getAllItems('locations').then(
-        function (result) {
-            $scope.locations = result;
-        }
-    );
-
-    // GET 
-    DataService.getAllItems('classes').then(
-        function (result) {
-            $scope.classes = result;
-        }
-    );
+    $scope.items  = items;
     
-    // callback for ng-click 'showAddModal':
-    $scope.showAddModal = function (acType) {
-
-        $scope.myVariables.current_mode = "Add";
-        $scope.location = {};
-        $scope.aclass = {};
-        $scope.aclass.location_id = $stateParams.itemId;
-
-        $ionicModal.fromTemplateUrl('templates/modals/modal_' + acType + '.html', {
-            scope: $scope,
-            animation: 'slide-in-up'
-        }).then(function (modal) {
-            $scope.modal = modal;
-            $scope.modal.show();
-        });
+    //ACTION SHEET
+    $scope.showActions = function(itemId, event0) {
+        var ionicActions = $scope.ionicActions = $scope.generateActions(itemId);
+        $scope.popOverStyle = {width:'150px', height: $scope.ionicActions.length*50 + "px"};
+        $scope.popover.show(event0);
+        $scope.popOverClick = function(action) {
+            switch(action) {
+                case "Delete":
+                    $scope.deletePost(itemId);
+                    break;
+                default:
+                    return true;
+            }
+            $scope.popover.hide();
+            return true;
+        };
     };
+    
+    
     
     
     // callback for ng-click 'saveModal':
