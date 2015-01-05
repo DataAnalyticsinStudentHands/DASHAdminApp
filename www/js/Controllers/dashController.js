@@ -7,7 +7,7 @@
  * # DashController
  * Controller for objects used in the dashboard
  */
-angular.module('Controllers').controller('DashCtrl', function ($scope, $filter, $ionicModal, $ionicPopup, $stateParams, items, DataService) {
+angular.module('Controllers').controller('DashCtrl', function ($scope, $filter, $ionicModal, $ionicPopup, $ionicPopover, $stateParams, items, DataService) {
     'use strict';
 
     $scope.myVariables = {
@@ -16,15 +16,20 @@ angular.module('Controllers').controller('DashCtrl', function ($scope, $filter, 
     
     $scope.items  = items;
     
-    //ACTION SHEET
+    $ionicPopover.fromTemplateUrl('partials/popoverOptsArray.html', {
+        scope: $scope
+    }).then(function(popover) {
+        $scope.popover = popover;
+    });
+    
+    // action sheet
     $scope.showActions = function(itemId, event0) {
-        var ionicActions = $scope.ionicActions = $scope.generateActions(itemId);
-        $scope.popOverStyle = {width:'150px', height: $scope.ionicActions.length*50 + "px"};
+        $scope.popOverStyle = {width:'150px', height: '50px'};
         $scope.popover.show(event0);
         $scope.popOverClick = function(action) {
             switch(action) {
                 case "Delete":
-                    $scope.deletePost(itemId);
+                    $scope.deleteItem(itemId);
                     break;
                 default:
                     return true;

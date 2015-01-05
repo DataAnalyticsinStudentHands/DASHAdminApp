@@ -25,7 +25,7 @@ angular.module('dash-admin-app', [
         }
     });
 
-    //Restangular.setBaseUrl("http://localhost:8080/CHW/");
+    //Restangular.setBaseUrl("http://localhost:8080/terrytest/");
     Restangular.setBaseUrl("http://www.housuggest.org:8080/terrytest/");
     
     $rootScope.Restangular = function () {
@@ -84,7 +84,7 @@ angular.module('dash-admin-app', [
                 authenticate: true,
                 resolve: {
                     items: function (DataService){
-                        return DataService.getAllItems('applications');
+                        return DataService.getAllItems('application');
                     }
                 }
             })

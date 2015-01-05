@@ -21,7 +21,9 @@
 
             </div>
             <div class="item tabs tabs-secondary tabs-icon-left">
-                
+                <a class="tab-item" ng-click="deleteData('application', item.id)">
+                    <i class="icon ion-trash-a"></i>
+                </a>
                 <a class="tab-item" ng-click="showActions(post.id, $event)">
                     <i class="icon ion-ios7-more"></i>
                 </a>
